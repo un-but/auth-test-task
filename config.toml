@@ -1,0 +1,8 @@
+[api]
+name = "Auth Test Task API"
+
+jwt_access_expire_seconds = 300
+jwt_refresh_expire_days = 30
+
+[database]
+echo = false

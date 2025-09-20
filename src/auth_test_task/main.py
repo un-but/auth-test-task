@@ -1,0 +1,27 @@
+"""Модуль для запуска API.
+
+Для корректной работы требуются правильно настроенные файлы config.toml и .env.
+Данные о полях в них можно найти в файле src/auth_test_task/schemas/_configuration.py.
+"""
+
+from fastapi import FastAPI, status
+
+from auth_test_task.api.routers import auth
+from auth_test_task.schemas import config
+
+app = FastAPI(
+    title=config.api.name,
+    responses={
+        status.HTTP_401_UNAUTHORIZED: {"description": "Необходима авторизация"},
+        status.HTTP_403_FORBIDDEN: {"description": "Доступ запрещён"},
+        status.HTTP_422_UNPROCESSABLE_ENTITY: {"description": "Ошибка валидации данных в запросе"},
+        status.HTTP_500_INTERNAL_SERVER_ERROR: {
+            "description": "Ошибка сервера, пожалуйста сообщите разработчикам"
+        },
+        status.HTTP_503_SERVICE_UNAVAILABLE: {
+            "description": "Сервис временно недоступен, пожалуйста сообщите разработчикам"
+        },
+    },
+)
+
+app.include_router(auth.router)
