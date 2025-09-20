@@ -2,13 +2,13 @@
 
 from __future__ import annotations
 
-import pkgutil
 import re
 import uuid
 from datetime import datetime
 from typing import Literal
 
-from sqlalchemy import BigInteger, ForeignKey, String, func
+import bcrypt
+from sqlalchemy import ForeignKey, String, func
 from sqlalchemy.orm import (
     DeclarativeBase,
     Mapped,
@@ -18,8 +18,9 @@ from sqlalchemy.orm import (
     validates,
 )
 
+from auth_test_task.schemas import ACTION_TYPES, OBJECT_TYPES, USER_ROLES
+
 rename_pattern = re.compile(r"(?<!^)(?=[A-Z])")
-source_statuses = Literal["success", "fail", "in_progress", "in_queue", "partial_success"]
 
 
 class Base(DeclarativeBase):
@@ -37,3 +38,80 @@ class Base(DeclarativeBase):
             cls.__name__.replace("Model", ""),
         ).lower()
         return class_name + "s" if class_name[-1] != "y" else class_name[:-1] + "ies"
+
+
+class UserModel(Base):
+    """Модель пользователя (в т.ч. и администратора)."""
+
+    id: Mapped[uuid.UUID] = mapped_column(default=uuid.uuid4, primary_key=True)
+
+    is_active: Mapped[bool] = mapped_column(default=True)
+    role: Mapped[USER_ROLES] = mapped_column(default="user")
+
+    name: Mapped[str] = mapped_column(String(100))
+    created_at: Mapped[datetime] = mapped_column(server_default=func.now())
+
+    email: Mapped[str] = mapped_column(String(255), unique=True, index=True)
+    _password: Mapped[str] = mapped_column("password", String(255))
+
+    posts: Mapped[list[PostModel]] = relationship(
+        back_populates="user",
+        cascade="all, delete-orphan",
+        lazy="raise",
+    )
+
+    comments: Mapped[list[CommentModel]] = relationship(
+        back_populates="user",
+        cascade="all, delete-orphan",
+        lazy="raise",
+    )
+
+    @validates("_password")
+    def validate_and_hash_password(self, key: str, value: str):
+        if not value or len(value) < 8:
+            raise ValueError("Password must be at least 8 characters long")
+
+        return bcrypt.hashpw(value.encode("utf-8"), bcrypt.gensalt()).decode("utf-8")
+
+    def check_password(self, raw_password: str) -> bool:
+        return bcrypt.checkpw(raw_password.encode("utf-8"), self._password.encode("utf-8"))
+
+
+class PostModel(Base):
+    """Модель поста."""
+
+    id: Mapped[uuid.UUID] = mapped_column(default=uuid.uuid4, primary_key=True)
+    created_at: Mapped[datetime] = mapped_column(server_default=func.now())
+    content: Mapped[str] = mapped_column(String(1000))
+
+    user_id: Mapped[uuid.UUID] = mapped_column(ForeignKey("users.id"))
+    user: Mapped[UserModel] = relationship(back_populates="posts", lazy="joined")
+
+    comments: Mapped[list[CommentModel]] = relationship(
+        back_populates="post",
+        cascade="all, delete-orphan",
+        lazy="raise",
+    )
+
+
+class CommentModel(Base):
+    """Модель комментария."""
+
+    id: Mapped[uuid.UUID] = mapped_column(default=uuid.uuid4, primary_key=True)
+    created_at: Mapped[datetime] = mapped_column(server_default=func.now())
+    content: Mapped[str] = mapped_column(String(500))
+
+    user_id: Mapped[uuid.UUID] = mapped_column(ForeignKey("users.id"))
+    user: Mapped[UserModel] = relationship(back_populates="", lazy="joined")
+
+    post_id: Mapped[uuid.UUID] = mapped_column(ForeignKey("posts.id"))
+    post: Mapped[PostModel] = relationship(back_populates="comments", lazy="joined")
+
+
+class RoleRuleModel(Base):
+    """Правила доступа для ролей и объектов."""
+
+    role: Mapped[USER_ROLES] = mapped_column(primary_key=True)
+    object_type: Mapped[OBJECT_TYPES] = mapped_column(primary_key=True)
+    action: Mapped[ACTION_TYPES] = mapped_column(primary_key=True)
+    allowed: Mapped[bool] = mapped_column()
