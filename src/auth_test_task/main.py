@@ -8,7 +8,7 @@ from __future__ import annotations
 
 from fastapi import FastAPI, status
 
-from auth_test_task.api.routers import auth
+from auth_test_task.api.routers import auth, user
 from auth_test_task.schemas import config
 
 app = FastAPI(
@@ -27,3 +27,4 @@ app = FastAPI(
 )
 
 app.include_router(auth.router)
+app.include_router(user.router)

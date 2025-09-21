@@ -91,17 +91,17 @@ timezone = "Europe/Moscow"
 truncate_slug_length = "40"
 
 # Указывает что работа файла env.py обязательна
-revision_environment = "false"
+revision_environment = false
 
 # Установите true для использования .pyc или .pyo файлов
-sourceless = "false"
+sourceless = false
 
 # Список директорий для хранения версий
 version_locations = ["%(here)s/migrations/versions"]
 
 
 # Рекурсивный поиск в файлах миграций
-recursive_version_locations = "false"
+recursive_version_locations = false
 
 # Кодировка используемая файлами миграций
 output_encoding = "utf-8"

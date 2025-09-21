@@ -3,7 +3,7 @@
 import logging
 from typing import Literal
 
-from fastapi import APIRouter, HTTPException, status
+from fastapi import APIRouter, HTTPException, Response, status
 from sqlalchemy.exc import IntegrityError
 
 from auth_test_task.api.dependencies import db_dep, user_dep
@@ -89,10 +89,12 @@ async def update_user(
 async def delete_user(
     user: user_dep,
     db: db_dep,
-) -> None:
+) -> Response:
     try:
         await UserDAL.drop(user.id, db)
     except LookupError:
         raise HTTPException(status.HTTP_404_NOT_FOUND, "Пользователь не найден")
     except IntegrityError:
         raise HTTPException(status.HTTP_400_BAD_REQUEST, "Нарушение целостности данных")
+    else:
+        return Response(status_code=status.HTTP_204_NO_CONTENT)

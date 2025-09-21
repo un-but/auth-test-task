@@ -10,7 +10,7 @@ from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker, create_asyn
 from auth_test_task.schemas import config
 
 engine = create_async_engine(
-    url=config.database.url.get_secret_value(),
+    url=config.database.ps_url.get_secret_value(),
     echo=config.database.echo,
     pool_size=20,  # основной пул
     max_overflow=20,  # дополнительные соединения
@@ -24,7 +24,7 @@ session_maker = async_sessionmaker(
     expire_on_commit=False,
 )
 
-rd = async_redis.from_url(config.database.redis_url.get_secret_value(), decode_responses=True)
+rd = async_redis.from_url(config.database.rd_url.get_secret_value(), decode_responses=True)
 
 
 async def get_db() -> AsyncIterator[AsyncSession]:

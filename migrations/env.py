@@ -10,7 +10,7 @@ from sqlalchemy import pool
 from sqlalchemy.engine import Connection
 from sqlalchemy.ext.asyncio import async_engine_from_config
 
-url = config.database.url.get_secret_value()  # Секретный url из .env
+url = config.database.ps_url.get_secret_value()  # Секретный url из .env
 
 # Настраивает логгер
 fileConfig("logconfig.ini")

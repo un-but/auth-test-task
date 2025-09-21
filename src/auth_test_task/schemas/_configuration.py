@@ -13,11 +13,11 @@ from_source(Source.{ИСТОЧНИК_ПОЛЯ})
 
 from __future__ import annotations
 
+import os
 import tomllib
 from pathlib import Path
 from typing import Any, Literal
 
-from dotenv import dotenv_values
 from pydantic import BaseModel, Field, SecretStr
 from pydantic.fields import FieldInfo
 from pydantic_settings import BaseSettings, PydanticBaseSettingsSource, SettingsConfigDict
@@ -46,7 +46,6 @@ class APIConfig(BaseModel):
     """Настройки FastAPI приложения."""
 
     name: str = from_source("toml")
-    url: str = from_source("env")
 
     jwt_secret: SecretStr = from_source("env")
     jwt_access_expire_seconds: int = from_source("toml")
@@ -56,8 +55,8 @@ class APIConfig(BaseModel):
 class DatabaseConfig(BaseModel):
     """Настройки работы с базой данных через SQLAlchemy."""
 
-    url: SecretStr = from_source("env")
-    redis_url: SecretStr = from_source("env")
+    ps_url: SecretStr = from_source("env")
+    rd_url: SecretStr = from_source("env")
     echo: bool = from_source("toml")
 
 
@@ -105,12 +104,11 @@ class Config(BaseSettings):
 
             def _parse_sub_fields(self, field: FieldInfo, field_name: str) -> dict[str, Any]:
                 try:
-                    env_data = dotenv_values(".env")
                     return {
-                        sub_field_name: env_data[f"{field_name}_{sub_field_name}".upper()]
+                        sub_field_name: os.environ[f"{field_name}_{sub_field_name}".upper()]
                         for sub_field_name, sub_field in field.annotation.model_fields.items()
                         if sub_field.json_schema_extra.get("source") == "env"
-                        and f"{field_name}_{sub_field_name}".upper() in env_data
+                        and f"{field_name}_{sub_field_name}".upper() in os.environ
                     }
                 except AttributeError:  # Если у полей не указан источник
                     error_msg = "Нарушены правила работы с конфигом, описанные в начале модуля"

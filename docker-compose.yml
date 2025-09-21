@@ -1,0 +1,38 @@
+version: '3.9'
+
+services:
+  db:
+    image: postgres:17
+    restart: always
+    environment:
+      POSTGRES_DB: test_task_db
+      POSTGRES_USER: test_task_user
+      POSTGRES_PASSWORD: test_task_password
+    ports:
+      - "5432:5432"
+    volumes:
+      - db_data:/var/lib/postgresql/data
+
+  redis:
+    image: redis:8.2.1
+    restart: always
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+
+  app:
+    build: .
+    depends_on:
+      - db
+      - redis
+    environment:
+      API_JWT_SECRET: _____your_jwt_secret_key_____
+      DATABASE_PS_URL: postgresql+asyncpg://test_task_user:test_task_password@db:5432/test_task_db
+      DATABASE_RD_URL: redis://redis:6379/0
+    ports:
+      - "8000:8000"
+
+volumes:
+  db_data:
+  redis_data:
