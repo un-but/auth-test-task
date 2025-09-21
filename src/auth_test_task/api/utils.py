@@ -3,19 +3,22 @@
 from __future__ import annotations
 
 import secrets
-import uuid
 from datetime import UTC, datetime, timedelta
-from hashlib import sha256
-from typing import Any, Literal
+from typing import TYPE_CHECKING, Any, Literal
 
 import jwt
 from fastapi import HTTPException, Response, status
-from redis.asyncio import Redis
-from sqlalchemy.ext.asyncio import AsyncSession
 
 from auth_test_task.db.dal import UserDAL
-from auth_test_task.db.models import UserModel
 from auth_test_task.schemas import AuthResponse, UserResponse, config
+
+if TYPE_CHECKING:
+    import uuid
+
+    from redis.asyncio import Redis
+    from sqlalchemy.ext.asyncio import AsyncSession
+
+    from auth_test_task.db.models import UserModel
 
 
 async def generate_access_token(user_id: uuid.UUID) -> str:
@@ -25,7 +28,7 @@ async def generate_access_token(user_id: uuid.UUID) -> str:
             "type": "access",
             "exp": datetime.now(UTC) + timedelta(seconds=config.api.jwt_access_expire_seconds),
         },
-        config.api.jwt_secret.get_secret_value(),
+        key=config.api.jwt_secret.get_secret_value(),
         algorithm="HS256",
     )
 
@@ -37,7 +40,7 @@ async def generate_refresh_token(refresh_id: str) -> str:
             "type": "refresh",
             "exp": datetime.now(UTC) + timedelta(days=config.api.jwt_refresh_expire_days),
         },
-        config.api.jwt_secret.get_secret_value(),
+        key=config.api.jwt_secret.get_secret_value(),
         algorithm="HS256",
     )
 
@@ -78,34 +81,6 @@ async def get_user_by_token(
             status.HTTP_403_FORBIDDEN,
             f"К {token_type} токену привязан несуществующий пользователь",
         )
-
-
-async def check_admin_token(
-    token: str,
-    rd: Redis,
-) -> None:
-    try:
-        payload: dict[str, Any] = jwt.decode(
-            token,
-            config.api.jwt_secret.get_secret_value(),
-            algorithms=["HS256"],
-        )
-
-        if payload.get("type") != "admin":
-            raise HTTPException(
-                status.HTTP_401_UNAUTHORIZED,
-                "Токен не содержит необходимой информации",
-            )
-
-        admin_key = await rd.get(f"admin_key:{payload['sub']}")
-
-        if admin_key == 1:
-            raise HTTPException(
-                status.HTTP_403_FORBIDDEN,
-                "Некорректное значение у admin токена",
-            )
-    except jwt.PyJWTError:
-        raise HTTPException(status.HTTP_401_UNAUTHORIZED, "Некорректный admin токен")
 
 
 async def create_user_tokens(

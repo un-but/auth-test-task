@@ -7,7 +7,6 @@ import logging
 from fastapi import APIRouter, HTTPException, Response, status
 
 from auth_test_task.api.utils import (
-    create_admin_token,
     create_user_tokens,
     get_user_by_token,
 )

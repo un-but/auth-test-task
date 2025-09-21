@@ -17,7 +17,13 @@ from sqlalchemy.orm import (
     validates,
 )
 
-from auth_test_task.schemas import ACTION_TYPES, OBJECT_TYPES, USER_ROLES
+from auth_test_task.schemas import (
+    ACTION_TYPES,
+    MAX_PASSWORD_LENGTH,
+    MIN_PASSWORD_LENGTH,
+    OBJECT_TYPES,
+    USER_ROLES,
+)
 
 rename_pattern = re.compile(r"(?<!^)(?=[A-Z])")
 
@@ -50,7 +56,7 @@ class UserModel(Base):
     name: Mapped[str] = mapped_column(String(100))
     created_at: Mapped[datetime] = mapped_column(server_default=func.now())
 
-    email: Mapped[str] = mapped_column(String(255), unique=True, index=True)
+    email: Mapped[str] = mapped_column(String(255), unique=True)
     _password: Mapped[str] = mapped_column("password", String(255))
 
     posts: Mapped[list[PostModel]] = relationship(
@@ -67,8 +73,9 @@ class UserModel(Base):
 
     @validates("_password")
     def validate_and_hash_password(self, key: str, value: str):
-        if not value or len(value) < 8:
-            raise ValueError("Password must be at least 8 characters long")
+        if not value or len(value) < MIN_PASSWORD_LENGTH or len(value) > MAX_PASSWORD_LENGTH:
+            msg = "Password must be at least 8 characters long and at most 64 characters long."
+            raise ValueError(msg)
 
         return bcrypt.hashpw(value.encode("utf-8"), bcrypt.gensalt()).decode("utf-8")
 
