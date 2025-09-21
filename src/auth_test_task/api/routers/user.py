@@ -1,7 +1,6 @@
 """Эндпоинты, отвечающие за управление пользователем."""
 
 import logging
-from typing import Literal
 
 from fastapi import APIRouter, HTTPException, Response, status
 from sqlalchemy.exc import IntegrityError
@@ -47,15 +46,12 @@ async def get_user(
     user: user_dep,
     db: db_dep,
 ) -> UserResponse:
-    try:
-        user = await UserDAL.get_by_id(
-            user_id=user.id,
-            session=db,
-        )
-    except LookupError:
-        raise HTTPException(status.HTTP_404_NOT_FOUND, "Пользователь не найден")
-    else:
-        return UserResponse.model_validate(user)
+    user = await UserDAL.get_by_id(
+        user_id=user.id,
+        session=db,
+    )
+
+    return UserResponse.model_validate(user)
 
 
 @router.patch(
@@ -91,10 +87,8 @@ async def delete_user(
     db: db_dep,
 ) -> Response:
     try:
-        await UserDAL.drop(user.id, db)
-    except LookupError:
-        raise HTTPException(status.HTTP_404_NOT_FOUND, "Пользователь не найден")
+        await UserDAL.change_active_status(user.id, False, db)
     except IntegrityError:
-        raise HTTPException(status.HTTP_400_BAD_REQUEST, "Нарушение целостности данных")
+        raise HTTPException(status.HTTP_400_BAD_REQUEST, "Нарушение ограничений данных")
     else:
         return Response(status_code=status.HTTP_204_NO_CONTENT)

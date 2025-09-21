@@ -60,8 +60,6 @@ class UserModel(Base):
     _password: Mapped[str] = mapped_column(
         "password",
         String(255),
-        deferred=True,
-        deferred_raiseload=True,
     )
 
     posts: Mapped[list[PostModel]] = relationship(

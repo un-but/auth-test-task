@@ -10,7 +10,7 @@ import jwt
 from fastapi import HTTPException, Response, status
 
 from auth_test_task.db.dal import UserDAL
-from auth_test_task.schemas import AuthResponse, UserResponse, config
+from auth_test_task.schemas import AuthResponse, Cookies, UserResponse, config
 
 if TYPE_CHECKING:
     import uuid
@@ -121,3 +121,34 @@ async def create_user_tokens(
         refresh_token=refresh_token,
         user=user_info,
     )
+
+
+async def delete_user_tokens(
+    cookies: Cookies,
+    rd: Redis,
+    response: Response,
+) -> None:
+    try:
+        payload: dict[str, Any] = jwt.decode(
+            cookies.refresh_token,
+            config.api.jwt_secret.get_secret_value(),
+            algorithms=["HS256"],
+        )
+
+        if payload.get("type") != "refresh":
+            raise HTTPException(
+                status.HTTP_401_UNAUTHORIZED,
+                "Токен не содержит необходимой информации",
+            )
+
+        await rd.delete(f"refresh_token:{payload['sub']}")
+    except jwt.PyJWTError:
+        raise HTTPException(status.HTTP_401_UNAUTHORIZED, "Некорректный refresh токен")
+    except LookupError:
+        raise HTTPException(
+            status.HTTP_403_FORBIDDEN,
+            "К refresh токену привязан несуществующий пользователь",
+        )
+    else:
+        response.delete_cookie("access_token")
+        response.delete_cookie("refresh_token")

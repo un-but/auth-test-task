@@ -5,7 +5,7 @@ from __future__ import annotations
 import uuid
 from datetime import datetime
 
-from pydantic import EmailStr, Field
+from pydantic import AliasChoices, EmailStr, Field
 
 from auth_test_task.schemas._common import BaseSchema
 from auth_test_task.schemas._variables import USER_ROLES
@@ -21,10 +21,15 @@ class UserBase(BaseSchema):
 class UserCreate(UserBase):
     """Схема для создания пользователя."""
 
-    password: str = Field(alias="_password", min_length=8, max_length=64)
+    password: str = Field(
+        validation_alias=AliasChoices("password", "_password"),
+        serialization_alias="_password",
+        min_length=8,
+        max_length=64,
+    )
 
 
-class UserResponse(UserCreate):
+class UserResponse(UserBase):
     """Схема для ответа с данными пользователя."""
 
     id: uuid.UUID
@@ -42,4 +47,9 @@ class UserUpdate(BaseSchema):
 
     name: str | None = Field(default=None, min_length=2, max_length=50)
     email: EmailStr | None = Field(default=None, max_length=255)
-    password: str | None = Field(default=None, alias="_password", min_length=8, max_length=64)
+    password: str | None = Field(
+        default=None,
+        serialization_alias="_password",
+        min_length=8,
+        max_length=64,
+    )
