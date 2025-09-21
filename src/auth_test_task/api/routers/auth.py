@@ -6,11 +6,13 @@ import logging
 
 from fastapi import APIRouter, HTTPException, Response, status
 
+from auth_test_task.api.dependencies import cookies_dep, db_dep, rd_dep
 from auth_test_task.api.utils import (
     create_user_tokens,
     get_user_by_token,
 )
-from auth_test_task.schemas import config
+from auth_test_task.db.dal import UserDAL
+from auth_test_task.schemas import AuthResponse, UserCreate, UserResponse
 
 logger = logging.getLogger("auth_test_task")
 router = APIRouter(
@@ -23,6 +25,32 @@ router = APIRouter(
 
 
 @router.post(
+    "/",
+    summary="Авторизоваться в аккаунт",
+    response_description="Токены и пользователь: авторизация успешно завершена",
+    responses={
+        status.HTTP_401_UNAUTHORIZED: {"description": "Введён неверный email или пароль"},
+    },
+)
+async def login(
+    user_info: UserCreate,
+    db: db_dep,
+    rd: rd_dep,
+    response: Response,
+) -> AuthResponse:
+    try:
+        user = await UserDAL.get_with_email(user_info.email, db)
+
+        if not user.check_password(user_info.password):
+            raise LookupError
+    except LookupError:
+        raise HTTPException(status.HTTP_401_UNAUTHORIZED, "Неверный email или пароль")
+    else:
+        logger.info("User %s logged in by email %s", user.id, user.email)
+        return await create_user_tokens(UserResponse.model_validate(user), rd, response)
+
+
+@router.post(
     "/refresh",
     summary="Обновить токены по refresh токену",
     response_description="Токены и пользователь: обновление токенов успешно завершено",
@@ -32,8 +60,8 @@ router = APIRouter(
 )
 async def refresh_access_token(
     cookies: cookies_dep,
-    db: db_conn,
-    rd: redis_conn,
+    db: db_dep,
+    rd: rd_dep,
     response: Response,
 ) -> AuthResponse:
     if cookies.refresh_token is None:
@@ -55,7 +83,7 @@ async def refresh_access_token(
 async def logout(
     cookies: cookies_dep,
     response: Response,
-    rd: redis_conn,
+    rd: rd_dep,
 ) -> None:
     await rd.delete(f"refresh_token:{cookies.refresh_token}")
     response.delete_cookie("access_token")

@@ -53,7 +53,7 @@ class UserModel(Base):
     is_active: Mapped[bool] = mapped_column(default=True)
     role: Mapped[USER_ROLES] = mapped_column(default="user")
 
-    name: Mapped[str] = mapped_column(String(100))
+    name: Mapped[str] = mapped_column(String(50))
     created_at: Mapped[datetime] = mapped_column(server_default=func.now())
 
     email: Mapped[str] = mapped_column(String(255), unique=True)

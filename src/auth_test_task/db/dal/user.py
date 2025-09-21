@@ -14,7 +14,7 @@ if TYPE_CHECKING:
 
     from sqlalchemy.ext.asyncio import AsyncSession
 
-    from auth_test_task.schemas import UserCreate
+    from auth_test_task.schemas import UserCreate, UserUpdate
 
 
 class UserDAL:
@@ -62,6 +62,20 @@ class UserDAL:
     ) -> Sequence[UserModel]:
         users = await session.scalars(select(UserModel))
         return users.all()
+
+    @staticmethod
+    async def update(
+        user_id: uuid.UUID,
+        user_info: UserUpdate,
+        session: AsyncSession,
+    ) -> UserModel:
+        user = await UserDAL.get_by_id(user_id, session)
+
+        for field, value in user_info.model_dump(exclude_none=True).items():
+            setattr(user, field, value)
+
+        await session.commit()
+        return user
 
     @staticmethod
     async def drop(user_id: uuid.UUID, session: AsyncSession) -> None:
