@@ -1,0 +1,39 @@
+"""Основная схема с общими для всех схем настройками."""
+
+from __future__ import annotations
+
+from typing import Any, ClassVar
+
+from pydantic import BaseModel, model_validator
+
+from auth_test_task.db.models import Base
+
+
+class BaseSchema(BaseModel):
+    """Базовый класс для схем."""
+
+    model_config = {
+        "from_attributes": True,
+        "extra": "ignore",
+        "arbitrary_types_allowed": True,
+    }  # Позволяет создавать модели из атрибутов модели ORM и использовать сторонние схемы
+
+    _deferred: ClassVar[tuple[str, ...]] = ()
+
+    @model_validator(mode="before")
+    def validate_sqlalchemy_model_and_deferred(cls, values: Any) -> Any:
+        # Преобразование из ORM
+        if isinstance(values, Base):
+            return {
+                key: value
+                for key, value in values.__dict__.items()
+                if key or key not in cls._deferred
+            }
+
+        return values
+
+
+class NoContentSchema(BaseSchema):
+    """Ответ API, когда нет возвращаемого содержимого."""
+
+    detail: str

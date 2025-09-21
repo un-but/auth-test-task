@@ -1,5 +1,7 @@
 """Модуль, отвечающий за подключение к базе данных."""
 
+from __future__ import annotations
+
 from collections.abc import AsyncIterator
 
 import redis.asyncio as async_redis

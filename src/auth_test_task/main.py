@@ -4,6 +4,8 @@
 Данные о полях в них можно найти в файле src/auth_test_task/schemas/_configuration.py.
 """
 
+from __future__ import annotations
+
 from fastapi import FastAPI, status
 
 from auth_test_task.api.routers import auth

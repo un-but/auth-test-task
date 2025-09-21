@@ -1,4 +1,4 @@
-"""Модуль для работы с пользователями в базе данных."""
+"""Модуль для работы с правилами ролей пользователей в базе данных."""
 
 from __future__ import annotations
 
@@ -10,12 +10,12 @@ from sqlalchemy import select
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import selectinload
 
-from auth_test_task.db.models import UserModel
+from auth_test_task.db.models import RoleRuleModel
 
 if TYPE_CHECKING:
     from sqlalchemy.ext.asyncio import AsyncSession
     from sqlalchemy.sql.base import ExecutableOption
 
 
-class UserDAL:
-    """Класс для работы с пользователями в базе данных."""
+class RoleRuleDAL:
+    """Класс для работы с правилами ролей пользователей в базе данных."""

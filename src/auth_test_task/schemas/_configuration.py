@@ -18,7 +18,6 @@ from pathlib import Path
 from typing import Any, Literal
 
 from dotenv import dotenv_values
-from openai.types import ChatModel
 from pydantic import BaseModel, Field, SecretStr
 from pydantic.fields import FieldInfo
 from pydantic_settings import BaseSettings, PydanticBaseSettingsSource, SettingsConfigDict
