@@ -57,7 +57,12 @@ class UserModel(Base):
     created_at: Mapped[datetime] = mapped_column(server_default=func.now())
 
     email: Mapped[str] = mapped_column(String(255), unique=True)
-    _password: Mapped[str] = mapped_column("password", String(255))
+    _password: Mapped[str] = mapped_column(
+        "password",
+        String(255),
+        deferred=True,
+        deferred_raiseload=True,
+    )
 
     posts: Mapped[list[PostModel]] = relationship(
         back_populates="user",
@@ -72,7 +77,7 @@ class UserModel(Base):
     )
 
     @validates("_password")
-    def validate_and_hash_password(self, key: str, value: str):
+    def validate_and_hash_password(self, key: str, value: str) -> str:
         if not value or len(value) < MIN_PASSWORD_LENGTH or len(value) > MAX_PASSWORD_LENGTH:
             msg = "Password must be at least 8 characters long and at most 64 characters long."
             raise ValueError(msg)

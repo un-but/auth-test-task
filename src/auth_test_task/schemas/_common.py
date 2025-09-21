@@ -5,8 +5,7 @@ from __future__ import annotations
 from typing import Any, ClassVar
 
 from pydantic import BaseModel, model_validator
-
-from auth_test_task.db.models import Base
+from sqlalchemy.orm import DeclarativeBase
 
 
 class BaseSchema(BaseModel):
@@ -21,9 +20,9 @@ class BaseSchema(BaseModel):
     _deferred: ClassVar[tuple[str, ...]] = ()
 
     @model_validator(mode="before")
-    def validate_sqlalchemy_model_and_deferred(cls, values: Any) -> Any:
+    def validate_deferred_values(cls, values: Any) -> Any:
         # Преобразование из ORM
-        if isinstance(values, Base):
+        if isinstance(values, DeclarativeBase):
             return {
                 key: value
                 for key, value in values.__dict__.items()
