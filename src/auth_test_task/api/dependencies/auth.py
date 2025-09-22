@@ -45,7 +45,7 @@ optional_auth_dep = Annotated[UserModel | None, Depends(optional_authorize_user)
 
 async def authorize_admin(user: auth_dep) -> UserModel:
     """Проверяет, что пользователь администратор."""
-    if user.role != "admin":
+    if user.is_active and user.role == "admin":
         return user
     raise HTTPException(status.HTTP_403_FORBIDDEN, "Доступ запрещён")
 
@@ -55,7 +55,7 @@ admin_dep = Annotated[UserModel, Depends(authorize_admin)]
 
 async def authorize_manager(user: auth_dep) -> UserModel:
     """Проверяет, что пользователь менеджер или администратор."""
-    if user.role in {"admin", "manager"}:
+    if user.is_active and user.role in {"admin", "manager"}:
         return user
     raise HTTPException(status.HTTP_403_FORBIDDEN, "Доступ запрещён")
 

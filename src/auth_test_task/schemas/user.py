@@ -15,6 +15,12 @@ if TYPE_CHECKING:  # Требуется для корректной работы
     from auth_test_task.schemas import CommentChildUserResponse, PostChildResponse
 
 
+class RoleBase(BaseSchema):
+    """Базовая схема роли."""
+
+    role: USER_ROLES
+
+
 class UserBase(BaseSchema):
     """Базовая схема пользователя."""
 
@@ -31,6 +37,10 @@ class UserCreate(UserBase):
         min_length=8,
         max_length=64,
     )
+
+
+class UserWithRoleCreate(UserCreate, RoleBase):
+    """Схема для создания пользователя с указанием роли."""
 
 
 class UserResponse(UserBase):
@@ -60,3 +70,7 @@ class UserUpdate(BaseSchema):
         min_length=8,
         max_length=64,
     )
+
+
+class UserWithRoleUpdate(UserUpdate, RoleBase):
+    """Схема для обновления данных пользователя с указанием роли."""

@@ -38,7 +38,13 @@ from auth_test_task.schemas.role_rule import (
     RoleRuleResponse,
     RoleRuleUpdate,
 )
-from auth_test_task.schemas.user import UserCreate, UserResponse, UserUpdate
+from auth_test_task.schemas.user import (
+    UserCreate,
+    UserResponse,
+    UserUpdate,
+    UserWithRoleCreate,
+    UserWithRoleUpdate,
+)
 
 UserResponse.model_rebuild()
 PostResponse.model_rebuild()

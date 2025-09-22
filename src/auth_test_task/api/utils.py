@@ -73,7 +73,12 @@ async def get_user_by_token(
                 if user_id is None:
                     raise LookupError
 
-        return await UserDAL.get_by_id(user_id, db)
+        user = await UserDAL.get_by_id(user_id, db)
+
+        if user.is_active:
+            return user
+
+        raise LookupError
     except jwt.PyJWTError:
         raise HTTPException(status.HTTP_401_UNAUTHORIZED, f"Некорректный {token_type} токен")
     except LookupError:
