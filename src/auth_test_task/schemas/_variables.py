@@ -5,7 +5,7 @@ from __future__ import annotations
 from typing import Literal
 
 USER_ROLES = Literal["user", "admin", "manager"]
-OBJECT_TYPES = Literal["users", "posts", "comments"]
+OBJECT_TYPES = Literal["role_rules", "users", "posts", "comments"]
 ACTION_TYPES = Literal["create", "read", "update", "delete"]
 
 MIN_PASSWORD_LENGTH = 8

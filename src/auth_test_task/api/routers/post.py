@@ -5,7 +5,7 @@ import logging
 from fastapi import APIRouter, HTTPException, Response, status
 from sqlalchemy.exc import IntegrityError
 
-from auth_test_task.api.dependencies import auth_dep, db_dep, write_post_dep
+from auth_test_task.api.dependencies import auth_dep, db_dep, read_post_dep, write_post_dep
 from auth_test_task.db.dal import PostDAL
 from auth_test_task.schemas import PostCreate, PostResponse, PostUpdate
 
@@ -43,7 +43,7 @@ async def create_post(
     response_description="Информация о посте: пост успешно найден",
 )
 async def get_post(
-    post: write_post_dep,
+    post: read_post_dep,
 ) -> PostResponse:
     return PostResponse.model_validate(post)
 

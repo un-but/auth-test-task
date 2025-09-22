@@ -5,7 +5,13 @@ import logging
 from fastapi import APIRouter, HTTPException, Response, status
 from sqlalchemy.exc import IntegrityError
 
-from auth_test_task.api.dependencies import auth_dep, db_dep, read_post_dep, write_comment_dep
+from auth_test_task.api.dependencies import (
+    auth_dep,
+    db_dep,
+    read_comment_dep,
+    read_post_dep,
+    write_comment_dep,
+)
 from auth_test_task.db.dal import CommentDAL
 from auth_test_task.schemas import CommentCreate, CommentResponse, CommentUpdate
 
@@ -45,7 +51,7 @@ async def create_comment(
     response_description="Информация о комментарие: комментарий успешно найден",
 )
 async def get_comment(
-    comment: write_comment_dep,
+    comment: read_comment_dep,
 ) -> CommentResponse:
     return CommentResponse.model_validate(comment)
 

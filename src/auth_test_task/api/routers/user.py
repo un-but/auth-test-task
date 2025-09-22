@@ -5,7 +5,7 @@ import logging
 from fastapi import APIRouter, HTTPException, Query, Response, status
 from sqlalchemy.exc import IntegrityError
 
-from auth_test_task.api.dependencies import db_dep, auth_dep
+from auth_test_task.api.dependencies import auth_dep, db_dep, optional_auth_dep
 from auth_test_task.db.dal import UserDAL
 from auth_test_task.schemas import USER_INCLUDE_TYPE, UserCreate, UserResponse, UserUpdate
 
@@ -26,8 +26,12 @@ router = APIRouter(
 )
 async def create_user(
     user_info: UserCreate,
+    user: optional_auth_dep,
     db: db_dep,
 ) -> UserResponse:
+    if user and user.role not in ("admin", "manager"):
+        raise HTTPException(status.HTTP_403_FORBIDDEN, "Вы уже авторизованы")
+
     try:
         user = await UserDAL.create(user_info, db)
     except IntegrityError:

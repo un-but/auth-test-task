@@ -2,10 +2,15 @@
 
 import logging
 
-from fastapi import APIRouter, HTTPException, Query, Response, status
+from fastapi import APIRouter, HTTPException, Response, status
 from sqlalchemy.exc import IntegrityError
 
-from auth_test_task.api.dependencies import db_dep, write_role_rule_dep
+from auth_test_task.api.dependencies import (
+    admin_dep,
+    db_dep,
+    read_role_rule_dep,
+    write_role_rule_dep,
+)
 from auth_test_task.db.dal import RoleRuleDAL
 from auth_test_task.schemas import (
     RoleRuleCreate,
@@ -32,6 +37,7 @@ router = APIRouter(
 )
 async def create_role_rule(
     role_rule_info: RoleRuleCreate,
+    user: admin_dep,
     db: db_dep,
 ) -> RoleRuleResponse:
     try:
@@ -48,7 +54,7 @@ async def create_role_rule(
     response_description="Информация о правиле роли: правило роли успешно найдено",
 )
 async def get_role_rule(
-    role_rule: write_role_rule_dep,
+    role_rule: read_role_rule_dep,
 ) -> RoleRuleResponse:
     return RoleRuleResponse.model_validate(role_rule)
 

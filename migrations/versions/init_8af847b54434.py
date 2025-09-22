@@ -24,7 +24,9 @@ def upgrade() -> None:
         "role_rules",
         sa.Column("role", sa.Enum("user", "admin", "manager", native_enum=False), nullable=False),
         sa.Column(
-            "object_type", sa.Enum("users", "posts", "comments", native_enum=False), nullable=False
+            "object_type",
+            sa.Enum("users", "posts", "comments", "role_rules", native_enum=False),
+            nullable=False,
         ),
         sa.Column(
             "action",
