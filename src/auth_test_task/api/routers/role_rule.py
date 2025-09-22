@@ -49,7 +49,7 @@ async def create_role_rule(
 
 
 @router.get(
-    "/",
+    "/{role}/{object_type}/{action}",
     summary="Получить правило роли",
     response_description="Информация о правиле роли: правило роли успешно найдено",
 )
@@ -57,6 +57,17 @@ async def get_role_rule(
     role_rule: read_role_rule_dep,
 ) -> RoleRuleResponse:
     return RoleRuleResponse.model_validate(role_rule)
+
+
+@router.get(
+    "/",
+    summary="Получить все правила ролей",
+    response_description="Информация о правилах ролей: список успешно сформирован",
+)
+async def get_all_role_rules(db: db_dep) -> list[RoleRuleResponse]:
+    role_rules = await RoleRuleDAL.get_all(db)
+
+    return [RoleRuleResponse.model_validate(role_rule) for role_rule in role_rules]
 
 
 @router.patch(
@@ -71,13 +82,13 @@ async def update_role_rule(
 ) -> RoleRuleResponse:
     try:
         role_rule = await RoleRuleDAL.update(
-            role_rule_info=RoleRuleGet(
+            RoleRuleGet(
                 role=role_rule.role,
                 object_type=role_rule.object_type,
                 action=role_rule.action,
             ),
-            update_info=update_info,
-            session=db,
+            update_info,
+            db,
         )
     except IntegrityError:
         raise HTTPException(status.HTTP_400_BAD_REQUEST, "Нарушение ограничений данных")

@@ -18,11 +18,11 @@ from sqlalchemy.orm import (
 )
 
 from auth_test_task.schemas import (
-    ACTION_TYPES,
+    ACTION_TYPE,
     MAX_PASSWORD_LENGTH,
     MIN_PASSWORD_LENGTH,
-    OBJECT_TYPES,
-    USER_ROLES,
+    OBJECT_TYPE,
+    USER_ROLE,
 )
 
 rename_pattern = re.compile(r"(?<!^)(?=[A-Z])")
@@ -51,7 +51,7 @@ class UserModel(Base):
     id: Mapped[uuid.UUID] = mapped_column(default=uuid.uuid4, primary_key=True)
 
     is_active: Mapped[bool] = mapped_column(default=True)
-    role: Mapped[USER_ROLES] = mapped_column(default="user")
+    role: Mapped[USER_ROLE] = mapped_column(default="user")
 
     name: Mapped[str] = mapped_column(String(50))
     created_at: Mapped[datetime] = mapped_column(server_default=func.now())
@@ -120,7 +120,7 @@ class CommentModel(Base):
 class RoleRuleModel(Base):
     """Правила доступа для ролей и объектов."""
 
-    role: Mapped[USER_ROLES] = mapped_column(primary_key=True)
-    object_type: Mapped[OBJECT_TYPES] = mapped_column(primary_key=True)
-    action: Mapped[ACTION_TYPES] = mapped_column(primary_key=True)
+    role: Mapped[USER_ROLE] = mapped_column(primary_key=True)
+    object_type: Mapped[OBJECT_TYPE] = mapped_column(primary_key=True)
+    action: Mapped[ACTION_TYPE] = mapped_column(primary_key=True)
     allowed: Mapped[bool] = mapped_column()

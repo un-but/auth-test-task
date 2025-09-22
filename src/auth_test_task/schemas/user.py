@@ -9,7 +9,7 @@ from typing import TYPE_CHECKING
 from pydantic import AliasChoices, EmailStr, Field
 
 from auth_test_task.schemas._common import BaseSchema
-from auth_test_task.schemas._variables import USER_ROLES
+from auth_test_task.schemas._variables import USER_ROLE
 
 if TYPE_CHECKING:  # Требуется для корректной работы отложенного импорта
     from auth_test_task.schemas import CommentChildUserResponse, PostChildResponse
@@ -18,7 +18,7 @@ if TYPE_CHECKING:  # Требуется для корректной работы
 class RoleBase(BaseSchema):
     """Базовая схема роли."""
 
-    role: USER_ROLES
+    role: USER_ROLE
 
 
 class UserBase(BaseSchema):
@@ -49,7 +49,7 @@ class UserResponse(UserBase):
     id: uuid.UUID
 
     is_active: bool = Field(exclude=True)
-    role: USER_ROLES
+    role: USER_ROLE
 
     created_at: datetime
 

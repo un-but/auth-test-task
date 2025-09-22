@@ -9,7 +9,7 @@ from typing import Annotated
 from fastapi import Depends, HTTPException, status
 
 from auth_test_task.api.dependencies._common import db_dep
-from auth_test_task.api.dependencies.auth import auth_dep, manager_dep
+from auth_test_task.api.dependencies.auth import manager_dep
 from auth_test_task.db.dal import UserDAL
 from auth_test_task.db.models import UserModel
 

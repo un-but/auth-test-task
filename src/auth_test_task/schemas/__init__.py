@@ -8,12 +8,12 @@ from __future__ import annotations
 from auth_test_task.schemas._common import BaseSchema, NoContentSchema
 from auth_test_task.schemas._configuration import config
 from auth_test_task.schemas._variables import (
-    ACTION_TYPES,
+    ACTION_TYPE,
     MAX_PASSWORD_LENGTH,
     MIN_PASSWORD_LENGTH,
-    OBJECT_TYPES,
+    OBJECT_TYPE,
     USER_INCLUDE_TYPE,
-    USER_ROLES,
+    USER_ROLE,
 )
 from auth_test_task.schemas.auth import AuthResponse, AuthWithEmail, Cookies
 from auth_test_task.schemas.comment import (

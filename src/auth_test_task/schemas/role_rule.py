@@ -3,15 +3,15 @@
 from __future__ import annotations
 
 from auth_test_task.schemas._common import BaseSchema
-from auth_test_task.schemas._variables import ACTION_TYPES, OBJECT_TYPES, USER_ROLES
+from auth_test_task.schemas._variables import ACTION_TYPE, OBJECT_TYPE, USER_ROLE
 
 
 class RoleRuleBase(BaseSchema):
     """Базовая схема правила роли пользователя."""
 
-    role: USER_ROLES
-    object_type: OBJECT_TYPES
-    action: ACTION_TYPES
+    role: USER_ROLE
+    object_type: OBJECT_TYPE
+    action: ACTION_TYPE
 
 
 class RoleRuleGet(RoleRuleBase):
@@ -31,9 +31,9 @@ class RoleRuleResponse(RoleRuleCreate):
 class RoleRuleUpdate(BaseSchema):
     """Схема обновления правила роли пользователя."""
 
-    role: USER_ROLES | None = None
-    object_type: OBJECT_TYPES | None = None
-    action: ACTION_TYPES | None = None
+    role: USER_ROLE | None = None
+    object_type: OBJECT_TYPE | None = None
+    action: ACTION_TYPE | None = None
     allowed: bool | None = None
 
 

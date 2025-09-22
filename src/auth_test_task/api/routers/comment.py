@@ -8,6 +8,7 @@ from sqlalchemy.exc import IntegrityError
 from auth_test_task.api.dependencies import (
     auth_dep,
     db_dep,
+    manager_dep,
     read_comment_dep,
     read_post_dep,
     write_comment_dep,
@@ -46,7 +47,7 @@ async def create_comment(
 
 
 @router.get(
-    "/",
+    "/{comment_id}",
     summary="Получить комментарий",
     response_description="Информация о комментарие: комментарий успешно найден",
 )
@@ -54,6 +55,20 @@ async def get_comment(
     comment: read_comment_dep,
 ) -> CommentResponse:
     return CommentResponse.model_validate(comment)
+
+
+@router.get(
+    "/",
+    summary="Получить все комментарии",
+    response_description="Информация о комментариях: список успешно сформирован",
+)
+async def get_all_comments(
+    admin: manager_dep,
+    db: db_dep,
+) -> list[CommentResponse]:
+    comments = await CommentDAL.get_all(db)
+
+    return [CommentResponse.model_validate(comment) for comment in comments]
 
 
 @router.patch(
@@ -67,11 +82,7 @@ async def update_comment(
     db: db_dep,
 ) -> CommentResponse:
     try:
-        comment = await CommentDAL.update(
-            comment_id=comment.id,
-            update_info=update_info,
-            session=db,
-        )
+        comment = await CommentDAL.update(comment.id, update_info, db)
     except IntegrityError:
         raise HTTPException(status.HTTP_400_BAD_REQUEST, "Нарушение ограничений данных")
     else:

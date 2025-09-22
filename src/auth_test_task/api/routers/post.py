@@ -5,7 +5,13 @@ import logging
 from fastapi import APIRouter, HTTPException, Response, status
 from sqlalchemy.exc import IntegrityError
 
-from auth_test_task.api.dependencies import auth_dep, db_dep, read_post_dep, write_post_dep
+from auth_test_task.api.dependencies import (
+    auth_dep,
+    db_dep,
+    manager_dep,
+    read_post_dep,
+    write_post_dep,
+)
 from auth_test_task.db.dal import PostDAL
 from auth_test_task.schemas import PostCreate, PostResponse, PostUpdate
 
@@ -38,7 +44,7 @@ async def create_post(
 
 
 @router.get(
-    "/",
+    "/{post_id}",
     summary="Получить пост",
     response_description="Информация о посте: пост успешно найден",
 )
@@ -46,6 +52,20 @@ async def get_post(
     post: read_post_dep,
 ) -> PostResponse:
     return PostResponse.model_validate(post)
+
+
+@router.get(
+    "/",
+    summary="Получить все посты",
+    response_description="Информация о постах: список успешно сформирован",
+)
+async def get_all_posts(
+    admin: manager_dep,
+    db: db_dep,
+) -> list[PostResponse]:
+    posts = await PostDAL.get_all(db)
+
+    return [PostResponse.model_validate(post) for post in posts]
 
 
 @router.patch(
@@ -59,11 +79,7 @@ async def update_post(
     db: db_dep,
 ) -> PostResponse:
     try:
-        post = await PostDAL.update(
-            post_id=post.id,
-            update_info=update_info,
-            session=db,
-        )
+        post = await PostDAL.update(post.id, update_info, db)
     except IntegrityError:
         raise HTTPException(status.HTTP_400_BAD_REQUEST, "Нарушение ограничений данных")
     else:

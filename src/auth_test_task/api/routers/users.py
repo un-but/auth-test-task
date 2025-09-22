@@ -44,6 +44,21 @@ async def create_with_role(
 
 
 @router.get(
+    "/",
+    summary="Получить всех пользователей",
+    response_description="Информация о пользователях: список успешно сформирован",
+)
+async def get_all_users(
+    admin: manager_dep,
+    db: db_dep,
+    include: tuple[USER_INCLUDE_TYPE, ...] = Query(default=()),
+) -> list[UserResponse]:
+    users = await UserDAL.get_all(db, include)
+
+    return [UserResponse.model_validate(user) for user in users]
+
+
+@router.get(
     "/{user_id}",
     summary="Получить любого пользователя",
     response_description="Информация о пользователе: пользователь успешно найден",
@@ -53,11 +68,7 @@ async def get_any_user(
     db: db_dep,
     include: tuple[USER_INCLUDE_TYPE, ...] = Query(default=()),
 ) -> UserResponse:
-    user = await UserDAL.get_by_id(
-        user_id=user.id,
-        include=include,
-        session=db,
-    )
+    user = await UserDAL.get_by_id(user.id, db, include)
 
     return UserResponse.model_validate(user)
 
@@ -73,11 +84,7 @@ async def update_any_user_with_role(
     db: db_dep,
 ) -> UserResponse:
     try:
-        user = await UserDAL.update(
-            user_id=user.id,
-            update_info=update_info,
-            session=db,
-        )
+        user = await UserDAL.update(user.id, update_info, db)
     except IntegrityError:
         raise HTTPException(status.HTTP_400_BAD_REQUEST, "Нарушение ограничений данных")
     else:
