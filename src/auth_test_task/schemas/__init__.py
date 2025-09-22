@@ -17,12 +17,20 @@ from auth_test_task.schemas._variables import (
 )
 from auth_test_task.schemas.auth import AuthResponse, AuthWithEmail, Cookies
 from auth_test_task.schemas.comment import (
+    CommentBaseResponse,
+    CommentChildPostResponse,
+    CommentChildUserResponse,
     CommentCreate,
-    CommentDelete,
     CommentResponse,
     CommentUpdate,
 )
-from auth_test_task.schemas.post import PostCreate, PostDelete, PostResponse, PostUpdate
+from auth_test_task.schemas.post import (
+    PostBaseResponse,
+    PostChildResponse,
+    PostCreate,
+    PostResponse,
+    PostUpdate,
+)
 from auth_test_task.schemas.role_rule import (
     RoleRuleCreate,
     RoleRuleDelete,
@@ -31,3 +39,10 @@ from auth_test_task.schemas.role_rule import (
     RoleRuleUpdate,
 )
 from auth_test_task.schemas.user import UserCreate, UserResponse, UserUpdate
+
+UserResponse.model_rebuild()
+PostResponse.model_rebuild()
+
+CommentChildPostResponse.model_rebuild()
+CommentChildUserResponse.model_rebuild()
+CommentResponse.model_rebuild()

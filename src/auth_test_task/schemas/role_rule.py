@@ -2,25 +2,16 @@
 
 from __future__ import annotations
 
-import uuid
-from datetime import datetime
-from typing import TYPE_CHECKING
-
-from pydantic import field_validator
-
 from auth_test_task.schemas._common import BaseSchema
 from auth_test_task.schemas._variables import ACTION_TYPES, OBJECT_TYPES, USER_ROLES
-
-if TYPE_CHECKING:  # Требуется для корректной работы отложенного импорта
-    ...
 
 
 class RoleRuleBase(BaseSchema):
     """Базовая схема правила роли пользователя."""
 
-    role: ACTION_TYPES
+    role: USER_ROLES
     object_type: OBJECT_TYPES
-    action: USER_ROLES
+    action: ACTION_TYPES
 
 
 class RoleRuleGet(RoleRuleBase):
@@ -40,9 +31,9 @@ class RoleRuleResponse(RoleRuleCreate):
 class RoleRuleUpdate(BaseSchema):
     """Схема обновления правила роли пользователя."""
 
-    role: ACTION_TYPES | None = None
+    role: USER_ROLES | None = None
     object_type: OBJECT_TYPES | None = None
-    action: USER_ROLES | None = None
+    action: ACTION_TYPES | None = None
     allowed: bool | None = None
 
 

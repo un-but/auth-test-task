@@ -20,8 +20,8 @@ class PostDAL:
     """Класс для работы с постами в базе данных."""
 
     @staticmethod
-    async def create(post_info: PostCreate, session: AsyncSession) -> PostModel:
-        post = PostModel(**post_info.model_dump())
+    async def create(user_id: uuid.UUID, post_info: PostCreate, session: AsyncSession) -> PostModel:
+        post = PostModel(user_id=user_id, **post_info.model_dump())
 
         session.add(post)
         await session.commit()
@@ -50,12 +50,12 @@ class PostDAL:
     @staticmethod
     async def update(
         post_id: uuid.UUID,
-        post_info: PostUpdate,
+        update_info: PostUpdate,
         session: AsyncSession,
     ) -> PostModel:
         post = await PostDAL.get_by_id(post_id, session)
 
-        for field, value in post_info.model_dump(exclude_none=True).items():
+        for field, value in update_info.model_dump(exclude_none=True).items():
             setattr(post, field, value)
 
         await session.commit()

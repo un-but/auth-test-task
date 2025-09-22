@@ -29,7 +29,7 @@ class RoleRuleDAL:
         return role_rule
 
     @staticmethod
-    async def get_by_id(
+    async def get(
         role_rule_info: RoleRuleGet,
         session: AsyncSession,
     ) -> RoleRuleModel:
@@ -58,7 +58,7 @@ class RoleRuleDAL:
         update_info: RoleRuleUpdate,
         session: AsyncSession,
     ) -> RoleRuleModel:
-        role_rule = await RoleRuleDAL.get_by_id(role_rule_info, session)
+        role_rule = await RoleRuleDAL.get(role_rule_info, session)
 
         for field, value in update_info.model_dump(exclude_none=True).items():
             setattr(role_rule, field, value)
@@ -68,7 +68,7 @@ class RoleRuleDAL:
 
     @staticmethod
     async def drop(role_rule_info: RoleRuleDelete, session: AsyncSession) -> None:
-        role_rule = await RoleRuleDAL.get_by_id(role_rule_info, session)
+        role_rule = await RoleRuleDAL.get(role_rule_info, session)
 
         await session.delete(role_rule)
         await session.commit()

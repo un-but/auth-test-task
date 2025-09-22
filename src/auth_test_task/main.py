@@ -8,12 +8,13 @@ from __future__ import annotations
 
 from fastapi import FastAPI, status
 
-from auth_test_task.api.routers import auth, user
+from auth_test_task.api.routers import auth, comment, post, role_rule, user
 from auth_test_task.schemas import config
 
 app = FastAPI(
     title=config.api.name,
     responses={
+        status.HTTP_400_BAD_REQUEST: {"description": "Нарушение ограничений полей в базе данных"},
         status.HTTP_401_UNAUTHORIZED: {"description": "Необходима авторизация"},
         status.HTTP_403_FORBIDDEN: {"description": "Доступ запрещён"},
         status.HTTP_422_UNPROCESSABLE_ENTITY: {"description": "Ошибка валидации данных в запросе"},
@@ -28,3 +29,8 @@ app = FastAPI(
 
 app.include_router(auth.router)
 app.include_router(user.router)
+
+app.include_router(post.router)
+app.include_router(comment.router)
+
+app.include_router(role_rule.router)

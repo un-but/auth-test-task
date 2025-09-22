@@ -23,7 +23,7 @@ class UserDAL:
 
     @staticmethod
     async def create(user_info: UserCreate, session: AsyncSession) -> UserModel:
-        user = UserModel(**user_info.model_dump())
+        user = UserModel(**user_info.model_dump(by_alias=True))
 
         session.add(user)
         await session.commit()

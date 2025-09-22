@@ -4,11 +4,15 @@ from __future__ import annotations
 
 import uuid
 from datetime import datetime
+from typing import TYPE_CHECKING
 
 from pydantic import AliasChoices, EmailStr, Field
 
 from auth_test_task.schemas._common import BaseSchema
 from auth_test_task.schemas._variables import USER_ROLES
+
+if TYPE_CHECKING:  # Требуется для корректной работы отложенного импорта
+    from auth_test_task.schemas import CommentChildUserResponse, PostChildResponse
 
 
 class UserBase(BaseSchema):
@@ -39,7 +43,10 @@ class UserResponse(UserBase):
 
     created_at: datetime
 
-    # TODO(UnBut): добавить поля со списком постов и комментариев пользователя
+    posts: list[PostChildResponse] | None = None
+    comments: list[CommentChildUserResponse] | None = None
+
+    _deferred = ("posts", "comments")
 
 
 class UserUpdate(BaseSchema):
@@ -53,9 +60,3 @@ class UserUpdate(BaseSchema):
         min_length=8,
         max_length=64,
     )
-
-
-class UserDelete(BaseSchema):
-    """Схема для удаления пользователя."""
-
-    id: uuid.UUID
