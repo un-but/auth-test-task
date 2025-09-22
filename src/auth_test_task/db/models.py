@@ -99,7 +99,7 @@ class PostModel(Base):
     comments: Mapped[list[CommentModel]] = relationship(
         back_populates="post",
         cascade="all, delete-orphan",
-        lazy="raise",
+        lazy="joined",
     )
 
 

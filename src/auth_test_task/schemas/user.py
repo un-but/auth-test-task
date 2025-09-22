@@ -53,3 +53,9 @@ class UserUpdate(BaseSchema):
         min_length=8,
         max_length=64,
     )
+
+
+class UserDelete(BaseSchema):
+    """Схема для удаления пользователя."""
+
+    id: uuid.UUID

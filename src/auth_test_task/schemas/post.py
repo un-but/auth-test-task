@@ -4,11 +4,33 @@ from __future__ import annotations
 
 import uuid
 from datetime import datetime
-from typing import TYPE_CHECKING
 
-from pydantic import field_validator
+from pydantic import Field
 
 from auth_test_task.schemas._common import BaseSchema
 
-if TYPE_CHECKING:  # Требуется для корректной работы отложенного импорта
-    ...
+
+class PostCreate(BaseSchema):
+    """Схема для создания поста."""
+
+    content: str = Field(min_length=1, max_length=1000)
+    user_id: uuid.UUID
+
+
+class PostResponse(PostCreate):
+    """Схема для ответа с постом."""
+
+    id: uuid.UUID
+    created_at: datetime
+
+
+class PostUpdate(BaseSchema):
+    """Схема для обновления поста."""
+
+    content: str | None = Field(default=None, min_length=1, max_length=1000)
+
+
+class PostDelete(BaseSchema):
+    """Схема для удаления поста."""
+
+    id: uuid.UUID

@@ -10,3 +10,5 @@ ACTION_TYPES = Literal["create", "read", "update", "delete"]
 
 MIN_PASSWORD_LENGTH = 8
 MAX_PASSWORD_LENGTH = 64
+
+USER_INCLUDE_TYPE = Literal["posts", "comments"]

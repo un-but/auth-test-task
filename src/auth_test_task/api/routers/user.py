@@ -2,12 +2,12 @@
 
 import logging
 
-from fastapi import APIRouter, HTTPException, Response, status
+from fastapi import APIRouter, HTTPException, Query, Response, status
 from sqlalchemy.exc import IntegrityError
 
 from auth_test_task.api.dependencies import db_dep, user_dep
 from auth_test_task.db.dal import UserDAL
-from auth_test_task.schemas import UserCreate, UserResponse, UserUpdate
+from auth_test_task.schemas import USER_INCLUDE_TYPE, UserCreate, UserResponse, UserUpdate
 
 logger = logging.getLogger("auth_test_task")
 router = APIRouter(
@@ -45,9 +45,11 @@ async def create_user(
 async def get_user(
     user: user_dep,
     db: db_dep,
+    include: tuple[USER_INCLUDE_TYPE, ...] = Query(default=()),
 ) -> UserResponse:
     user = await UserDAL.get_by_id(
         user_id=user.id,
+        include=include,
         session=db,
     )
 
@@ -67,7 +69,7 @@ async def update_user(
     try:
         user = await UserDAL.update(
             user_id=user.id,
-            user_info=user_info,
+            update_info=user_info,
             session=db,
         )
     except IntegrityError:

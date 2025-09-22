@@ -12,7 +12,22 @@ from auth_test_task.schemas._variables import (
     MAX_PASSWORD_LENGTH,
     MIN_PASSWORD_LENGTH,
     OBJECT_TYPES,
+    USER_INCLUDE_TYPE,
     USER_ROLES,
 )
 from auth_test_task.schemas.auth import AuthResponse, AuthWithEmail, Cookies
+from auth_test_task.schemas.comment import (
+    CommentCreate,
+    CommentDelete,
+    CommentResponse,
+    CommentUpdate,
+)
+from auth_test_task.schemas.post import PostCreate, PostDelete, PostResponse, PostUpdate
+from auth_test_task.schemas.role_rule import (
+    RoleRuleCreate,
+    RoleRuleDelete,
+    RoleRuleGet,
+    RoleRuleResponse,
+    RoleRuleUpdate,
+)
 from auth_test_task.schemas.user import UserCreate, UserResponse, UserUpdate
